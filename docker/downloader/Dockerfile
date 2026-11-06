@@ -33,6 +33,6 @@ USER 10001:10001
 WORKDIR /home/dl
 
 LABEL org.opencontainers.image.title="model-downloader" \
-    org.opencontainers.image.description="initContainer: idempotent HF weights fetch to PVC"
+      org.opencontainers.image.description="initContainer for HF weights download"
 
-   ENTRYPOINT ["/usr/local/bin/download.sh"]
+ENTRYPOINT ["/usr/local/bin/download.sh"]

@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "base": {
+      "class": "logging.Formatter",
+      "datefmt": "%Y-%m-%dT%H:%M:%S%z",
+      "format": "%(asctime)s %(levelname)s %(name)s [pid=%(process)d] %(message)s"
+    }
+  },
+  "filters": {
+    "no_model_output": {"()": "custom_logging.redact.NoModelOutputFilter"},
+    "sensitive_content": {"()": "custom_logging.redact.SensitiveContentFilter"}
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "base",
+      "level": "INFO",
+      "stream": "ext://sys.stdout",
+      "filters": ["no_model_output", "sensitive_content"]
+    }
+  },
+  "loggers": {
+    "vllm": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn.error": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "uvicorn.access": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "vllm.v1.engine.core": {
+      "handlers": ["console"],
+      "level": "WARNING",
+      "propagate": false
+    },
+    "custom_logging.diagnostics": {
+      "handlers": ["console"],
+      "level": "WARNING",
+      "propagate": false
+    }
+  }
+}

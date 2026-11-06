@@ -1,6 +1,8 @@
 .venv/
 venv/
 *venv*/
-reults/
+results/
+models/
+*.log
 __pycache__/
 *.pyc
