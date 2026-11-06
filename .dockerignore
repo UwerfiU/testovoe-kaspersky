@@ -1,0 +1,17 @@
+k8s/
+scripts/
+locks/
+.git
+.gitattributes
+.gitignore
+.venv/
+**/__pycache__/
+*.pyc
+*.env.local
+venv/
+*venv*/
+secrets.yaml
+README.md
+Thumbs.db
+.DS_Store
+Makefile

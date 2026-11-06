@@ -1,0 +1,14 @@
+* text=auto
+*.sh        text eol=lf
+Dockerfile  text eol=lf
+dockerignore text eol=lf
+*.py        text eol=lf
+*.yaml      text eol=lf
+*.yml       text eol=lf
+*.json      text eol=lf
+*.png       binary
+*.whl       binary
+*.safetensors binary
+models/**   -text
+results/*.md diff=markdown
+Makefile    text eol=lf
