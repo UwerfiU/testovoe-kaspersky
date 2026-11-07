@@ -1,0 +1,148 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  labels:
+    app: vllm
+    app.kubernetes.io/name: vllm-inference
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: vllm
+  template:
+    metadata:
+      labels:
+        app: vllm
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      initContainers:
+        - name: download-model
+          image: model-downloader:v1
+          env:
+            - name: MODEL_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: vllm-config
+                  key: MODEL_NAME
+            - name: HF_REPO
+              valueFrom:
+                configMapKeyRef:
+                  name: vllm-config
+                  key: HF_REPO
+            - name: HF_REVISION
+              valueFrom:
+                configMapKeyRef:
+                  name: vllm-config
+                  key: HF_REVISION
+            - name: HF_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hf-token
+                  key: token
+                  optional: true
+          args:
+            - /models/$(MODEL_NAME)
+            - $(HF_REPO)
+            - $(HF_REVISION)
+          volumeMounts:
+            - name: model-cache
+              mountPath: /models
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+      containers:
+        - name: vllm
+          image: vllm-cpu:0.32.0
+          env:
+            - name: MODEL_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: vllm-config
+                  key: MODEL_NAME
+            - name: MODEL_PATH
+              value: /models/$(MODEL_NAME)
+            - name: VLLM_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: vllm-api-key
+                  key: token
+            - name: HF_HUB_OFFLINE
+              value: "1"
+            - name: TRANSFORMERS_OFFLINE
+              value: "1"
+          envFrom:
+            - configMapRef:
+                name: vllm-config
+          ports:
+            - name: http
+              containerPort: 8000
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 240
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 30
+            failureThreshold: 5
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+          resources:
+            requests:
+              cpu: "4"
+              memory: 8Gi
+            limits:
+              cpu: "8"
+              memory: 18Gi
+          volumeMounts:
+            - name: model-cache
+              mountPath: /models
+            - name: vllm-logging
+              mountPath: /etc/vllm
+              readOnly: true
+            - name: tmp
+              mountPath: /tmp
+            - name: home
+              mountPath: /home/vllm
+            - name: shm
+              mountPath: /dev/shm
+      volumes:
+        - name: model-cache
+          persistentVolumeClaim:
+            claimName: model-pvc
+        - name: vllm-logging
+          configMap:
+            name: vllm-logging
+        - name: tmp
+          emptyDir: {}
+        - name: home
+          emptyDir: {}
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi

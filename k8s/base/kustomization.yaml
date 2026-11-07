@@ -1,0 +1,22 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: llm
+resources:
+  - namespace.yaml
+  - pvc.yaml
+  - deployment.yaml
+  - service.yaml
+configMapGenerator:
+  - name: vllm-config
+    envs:
+      - vllm.env
+  - name: vllm-logging
+    files:
+      - logging.json=logging.json
+secretGenerator:
+  - name: hf-token
+    literals:
+      - token=CHANGE_ME_HF_TOKEN
+  - name: vllm-api-key
+    literals:
+      - token=CHANGE_ME_API_KEY

@@ -13,6 +13,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install "uv==0.13.7"
+
 COPY locks/downloader-py312.txt /tmp/locks.txt
 
 RUN --mount=type=cache,target=/root/.cache/uv \

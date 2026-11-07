@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vllm
+  namespace: llm
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: download-model
+          imagePullPolicy: Always
+      containers:
+        - name: vllm
+          imagePullPolicy: Always
