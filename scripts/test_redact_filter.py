@@ -63,6 +63,28 @@ def main():
     logger.info("Generated response %s", ("another-bad-format",))
     check("diagnostic deduplicated", diag_out.getvalue() == "")
 
+    out.truncate(0); out.seek(0)
+    try:
+        raise ValueError("cannot parse input prompt: SECRET-PROMPT-456")
+    except ValueError:
+        logger.exception("Request %s failed", "chatcmpl-9")
+    text = out.getvalue()
+    check(
+        "exception content redacted",
+        "SECRET-PROMPT-456" not in text
+        and "Request chatcmpl-9 failed" in text
+        and "traceback redacted" in text,
+    )
+
+    out.truncate(0); out.seek(0)
+    rec = logging.LogRecord("test.vllm", logging.INFO, __file__, 1,
+                            "Generated response %s%s: output: %r, finish_reason: %s",
+                            ("r1", "", "SECRET-MARKER", "stop"), None)
+    f = NoModelOutputFilter()
+    f.filter(rec)
+    f.filter(rec)
+    check("filter idempotent", rec.args == ("r1", "", "stop") and "<redacted>" in rec.msg)
+
     print()
     if failures:
         print("FAILED:", failures)

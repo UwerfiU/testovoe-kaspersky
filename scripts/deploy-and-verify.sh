@@ -56,6 +56,7 @@ if [ "${SKIP_APPLY:-0}" = "1" ]; then
   echo "   skipped (SKIP_APPLY=1)"
 else
   kubectl apply -k "$OVERLAY" || exit 1
+  kubectl -n "$NS" rollout status deploy/vllm --timeout="${WAIT_ROLLOUT:-420}s" || true
 fi
 
 echo ""

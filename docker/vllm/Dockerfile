@@ -43,6 +43,7 @@ WORKDIR /home/vllm
 
 ENV PATH=/opt/venv/bin:$PATH \
     HOME=/home/vllm \
+    PYTHONUNBUFFERED=1 \
     HF_HOME=/models \
     XDG_CACHE_HOME=/home/vllm/.cache \
     TRITON_CACHE_DIR=/models/.triton-cache \

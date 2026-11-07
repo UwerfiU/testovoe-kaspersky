@@ -55,9 +55,9 @@ HOST_TARGET=$(printf '%s' "$TARGET_URL" | sed 's#//localhost:#//host.docker.inte
 
 set_profile() {
   case "$1" in
-    short) NUM_PROMPTS=32; REQUEST_RATE=4;   INPUT_LEN=32;   OUTPUT_LEN=32;  RANGE_RATIO=0 ;;
-    mixed) NUM_PROMPTS=32; REQUEST_RATE=2;   INPUT_LEN=1536; OUTPUT_LEN=256; RANGE_RATIO=0.9 ;;
-    long)  NUM_PROMPTS=8;  REQUEST_RATE=0.5; INPUT_LEN=3072; OUTPUT_LEN=512; RANGE_RATIO=0 ;;
+    short) NUM_PROMPTS=${NUM_PROMPTS:-32}; REQUEST_RATE=${REQUEST_RATE:-4};   INPUT_LEN=32;   OUTPUT_LEN=32;  RANGE_RATIO=0 ;;
+    mixed) NUM_PROMPTS=${NUM_PROMPTS:-32}; REQUEST_RATE=${REQUEST_RATE:-2};   INPUT_LEN=1536; OUTPUT_LEN=256; RANGE_RATIO=0.9 ;;
+    long)  NUM_PROMPTS=${NUM_PROMPTS:-8};  REQUEST_RATE=${REQUEST_RATE:-0.5}; INPUT_LEN=3072; OUTPUT_LEN=512; RANGE_RATIO=0 ;;
   esac
 }
 
@@ -70,7 +70,7 @@ run_profile() {
   echo " client OUTSIDE the cluster -> $TARGET_URL"
   echo " prompts=$NUM_PROMPTS rate=${REQUEST_RATE}/s in=$INPUT_LEN out=$OUTPUT_LEN range_ratio=$RANGE_RATIO"
   echo "=================================================="
-  docker run --rm \
+  MSYS_NO_PATHCONV=1 docker run --rm \
     -e OPENAI_API_KEY="$API_KEY" \
     --entrypoint vllm \
     "$IMAGE_VLLM" bench serve \

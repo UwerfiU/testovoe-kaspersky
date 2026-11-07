@@ -21,6 +21,10 @@
       "filters": ["no_model_output", "sensitive_content"]
     }
   },
+  "root": {
+    "handlers": ["console"],
+    "level": "WARNING"
+  },
   "loggers": {
     "vllm": {
       "handlers": ["console"],

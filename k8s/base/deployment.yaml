@@ -51,6 +51,13 @@ spec:
             - /models/$(MODEL_NAME)
             - $(HF_REPO)
             - $(HF_REVISION)
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
           volumeMounts:
             - name: model-cache
               mountPath: /models
